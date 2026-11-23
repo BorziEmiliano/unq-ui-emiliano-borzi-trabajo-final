@@ -5,6 +5,7 @@ import WordForm from "../components/WordForm";
 import WordChain from "../components/WordChain";
 import EndGame from "../components/EndGame";
 import { validateWord } from "../services/Validate";
+import { saveScoreEntry } from "../services/Leaderboard";
 import { TURN_SECONDS, normalizeWord } from "../utils/Constants";
 
 const Home = () => {
@@ -55,66 +56,55 @@ const Home = () => {
   const score = usedWords.reduce((total, currentWord) => total + currentWord.length, 0);
 
   const handleWordChange = (value) => {
-    setWord(value.replace(/^\s+/, ""));
+    setWord(value.replace(/\s+/g, ""));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (status === "finished" || isChecking) return;
 
-    const cleanWord = word.trim();
-    if (!cleanWord) {
+    if (!word) {
       setFeedback({
         type: "danger",
         text: "Inserta una palabra",
       });
-      inputRef.current?.focus();
       return;
     }
 
     setFeedback(null);
 
-    const normalizedCandidate = normalizeWord(cleanWord);
+    const rejectWord = (text) => {
+      setWord("");
+      setFeedback({ type: "danger", text });
+    };
+
+    if (requiredLetter && normalizeWord(word[0]) !== requiredLetter) {
+      rejectWord(`Debe empezar con "${requiredLetter.toUpperCase()}"`);
+      return;
+    }
+
+    const normalizedCandidate = normalizeWord(word);
     const alreadyUsed = usedWords.some(
       (existingWord) => normalizeWord(existingWord) === normalizedCandidate
     );
 
     if (alreadyUsed) {
-      setWord("");
-      setFeedback({
-        type: "danger",
-        text: "La palabra ya fue utilizada",
-      });
-      inputRef.current?.focus();
-      return;
-    }
-
-    if (requiredLetter && normalizeWord(cleanWord[0]) !== requiredLetter) {
-      setWord("");
-      setFeedback({
-        type: "danger",
-        text: `Debe empezar con "${requiredLetter.toUpperCase()}"`,
-      });
-      inputRef.current?.focus();
+      rejectWord("La palabra ya fue utilizada");
       return;
     }
 
     setIsChecking(true);
 
     try {
-      const data = await validateWord(cleanWord);
+      const data = await validateWord(word);
 
       if (!data?.exists) {
-        setWord("");
-        setFeedback({
-          type: "danger",
-          text: "Palabra inválida",
-        });
+        rejectWord("Palabra inválida");
         return;
       }
 
-      setUsedWords((prev) => [...prev, cleanWord]);
-      setLastValidWord(cleanWord);
+      setUsedWords((prev) => [...prev, word]);
+      setLastValidWord(word);
       setTimeLeft(TURN_SECONDS);
       setWord("");
       setFeedback({
@@ -126,14 +116,18 @@ const Home = () => {
         setStatus("running");
       }
     } catch (error) {
-      setWord("");
-      setFeedback({
-        type: "danger",
-        text: "No se pudo validar la palabra. Intentá de nuevo."
-      });
+      rejectWord("No se pudo validar la palabra. Intentá de nuevo.");
     } finally {
       setIsChecking(false);
     }
+  };
+
+  const handleSaveScore = (playerName) => {
+    saveScoreEntry({
+      playerName,
+      score,
+      wordsCount: usedWords.length,
+    });
   };
 
   const handleReset = () => {
@@ -190,6 +184,7 @@ const Home = () => {
         <EndGame
           wordsCount={usedWords.length}
           score={score}
+          onSaveScore={handleSaveScore}
           onReset={handleReset}
         />
       )}

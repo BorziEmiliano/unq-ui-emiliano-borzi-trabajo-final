@@ -31,7 +31,6 @@ const WordForm = ({
                             : "Ingresá tu primera palabra.."
                     }
                     disabled={disabled || isChecking}
-                    autoFocus
                 />
                 <button type="submit" className="btn btn-primary" disabled={disabled || isChecking}>
                     {isChecking ? "Validando.." : "Enviar"}

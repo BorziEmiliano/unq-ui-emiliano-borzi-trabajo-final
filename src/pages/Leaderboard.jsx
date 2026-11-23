@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
+import { getLeaderboard } from "../services/Leaderboard";
+import { formatDateTime } from "../utils/Constants";
 
 const Leaderboard = () => {
+  const entries = getLeaderboard();
+
   return (
     <main className="container game-container mt-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -9,6 +13,37 @@ const Leaderboard = () => {
           Volver al juego
         </Link>
       </div>
+
+      {entries.length === 0 ? (
+        <div className="alert alert-secondary mb-0" role="alert">
+          Todavía no hay puntajes guardados en el Top 10.
+        </div>
+      ) : (
+        <div className="table-responsive">
+          <table className="table table-striped table-bordered align-middle mb-0">
+            <thead className="table-dark">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Jugador</th>
+                <th scope="col">Palabras</th>
+                <th scope="col">Puntaje</th>
+                <th scope="col">Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entries.map((entry, index) => (
+                <tr key={entry.id}>
+                  <td className="fw-bold">{index + 1}</td>
+                  <td>{entry.playerName}</td>
+                  <td>{entry.wordsCount}</td>
+                  <td className="fw-semibold">{entry.score}</td>
+                  <td>{formatDateTime(entry)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </main>
   );
 };
