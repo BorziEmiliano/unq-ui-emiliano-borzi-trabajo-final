@@ -2,12 +2,15 @@ import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import Timer from "../components/Timer";
 import WordForm from "../components/WordForm";
+import WordChain from "../components/WordChain";
+import EndGame from "../components/EndGame";
 import { validateWord } from "../services/Validate";
-import { TURN_SECONDS, removeAccents } from "../utils/Constants";
+import { TURN_SECONDS, normalizeWord } from "../utils/Constants";
 
 const Home = () => {
   const [word, setWord] = useState("");
   const [lastValidWord, setLastValidWord] = useState("");
+  const [usedWords, setUsedWords] = useState([]);
   const [timeLeft, setTimeLeft] = useState(TURN_SECONDS);
   const [status, setStatus] = useState("idle");
   const [feedback, setFeedback] = useState(null);
@@ -47,7 +50,9 @@ const Home = () => {
     return () => clearTimeout(timeoutId);
   }, [feedback]);
 
-  const requiredLetter = lastValidWord ? removeAccents(lastValidWord.slice(-1)) : "";
+  const requiredLetter = lastValidWord ? normalizeWord(lastValidWord.slice(-1)) : "";
+
+  const score = usedWords.reduce((total, currentWord) => total + currentWord.length, 0);
 
   const handleWordChange = (value) => {
     setWord(value.replace(/^\s+/, ""));
@@ -69,7 +74,22 @@ const Home = () => {
 
     setFeedback(null);
 
-    if (requiredLetter && removeAccents(cleanWord[0]) !== requiredLetter) {
+    const normalizedCandidate = normalizeWord(cleanWord);
+    const alreadyUsed = usedWords.some(
+      (existingWord) => normalizeWord(existingWord) === normalizedCandidate
+    );
+
+    if (alreadyUsed) {
+      setWord("");
+      setFeedback({
+        type: "danger",
+        text: "La palabra ya fue utilizada",
+      });
+      inputRef.current?.focus();
+      return;
+    }
+
+    if (requiredLetter && normalizeWord(cleanWord[0]) !== requiredLetter) {
       setWord("");
       setFeedback({
         type: "danger",
@@ -93,6 +113,7 @@ const Home = () => {
         return;
       }
 
+      setUsedWords((prev) => [...prev, cleanWord]);
       setLastValidWord(cleanWord);
       setTimeLeft(TURN_SECONDS);
       setWord("");
@@ -118,6 +139,7 @@ const Home = () => {
   const handleReset = () => {
     setWord("");
     setLastValidWord("");
+    setUsedWords([]);
     setTimeLeft(TURN_SECONDS);
     setStatus("idle");
     setFeedback(null);
@@ -135,7 +157,16 @@ const Home = () => {
         )}
       </div>
 
-      <Timer timeLeft={timeLeft} isRunning={status === "running"} />
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <Timer timeLeft={timeLeft} isRunning={status === "running"} />
+
+        {status !== "finished" && (
+          <p className="mb-0">
+            <span className="text-dark fw-semibold">Puntaje: </span>
+            <span className="fw-bold">{score}</span>
+          </p>
+        )}
+      </div>
 
       <WordForm
         inputRef={inputRef}
@@ -153,24 +184,14 @@ const Home = () => {
         </div>
       )}
 
-      {lastValidWord && (
-        <p className="mb-3">
-          Última palabra: <strong>{lastValidWord}</strong>
-        </p>
-      )}
+      <WordChain words={usedWords} />
 
       {status === "finished" && (
-        <div className="alert alert-warning d-inline-block mb-0">
-          <p className="mb-2 fw-semibold">¡Se acabó el tiempo!</p>
-          <div className="d-flex gap-2">
-            <button type="button" className="btn btn-dark btn-sm" onClick={handleReset}>
-              Reiniciar
-            </button>
-            <Link to="/leaderboard" className="btn btn-outline-dark btn-sm">
-              Leaderboard
-            </Link>
-          </div>
-        </div>
+        <EndGame
+          wordsCount={usedWords.length}
+          score={score}
+          onReset={handleReset}
+        />
       )}
     </main>
   );
