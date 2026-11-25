@@ -12,7 +12,7 @@ const WordForm = ({
             {requiredLetter && (
                 <div className="mb-2">
                     <span className="text-muted me-2">Debe empezar con:</span>
-                    <span className="badge bg-primary fs-6 text-uppercase">
+                    <span className="badge bg-danger fs-6 text-uppercase">
                         {requiredLetter}
                     </span>
                 </div>

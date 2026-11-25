@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { getLeaderboard } from "../services/Leaderboard";
 import { formatDateTime } from "../utils/Constants";
+import trofeo from "../assets/trofeo.png";
 
 const Leaderboard = () => {
   const entries = getLeaderboard();
@@ -8,8 +9,18 @@ const Leaderboard = () => {
   return (
     <main className="container game-container mt-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="h3 mb-0">Leaderboard</h1>
-        <Link to="/" className="btn btn-outline-secondary btn-sm">
+        <h1 className="h3 mb-0 d-flex align-items-center">
+          <img
+            src={trofeo}
+            alt="Trofeo"
+            title="Trofeo del Leaderboard"
+            width="32"
+            height="32"
+            className="me-2"
+          />
+          <span>Leaderboard</span>
+        </h1>
+        <Link to="/" className="btn btn-outline-dark btn-sm">
           Volver al juego
         </Link>
       </div>

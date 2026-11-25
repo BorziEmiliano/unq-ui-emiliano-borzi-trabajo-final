@@ -7,6 +7,7 @@ import EndGame from "../components/EndGame";
 import { validateWord } from "../services/Validate";
 import { saveScoreEntry } from "../services/Leaderboard";
 import { TURN_SECONDS, normalizeWord } from "../utils/Constants";
+import logo from "../assets/logo.png";
 
 const Home = () => {
   const [word, setWord] = useState("");
@@ -143,7 +144,17 @@ const Home = () => {
   return (
     <main className="container game-container mt-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="h3 mb-0">Palabras encadenadas</h1>
+        <h1 className="h3 mb-0 d-flex align-items-center">
+          <img
+            src={logo}
+            alt="Diccionario"
+            title="Palabras encadenadas logo"
+            width="34"
+            height="34"
+            className="me-2"
+          />
+          <span>Palabras encadenadas</span>
+        </h1>
         {status === "idle" && (
           <Link to="/leaderboard" className="btn btn-outline-dark btn-sm">
             Leaderboard
@@ -156,8 +167,9 @@ const Home = () => {
 
         {status !== "finished" && (
           <p className="mb-0">
-            <span className="text-dark fw-semibold">Puntaje: </span>
-            <span className="fw-bold">{score}</span>
+            <span className="fs-5 fw-bold text-dark">
+              Puntaje: {score}
+            </span>
           </p>
         )}
       </div>

@@ -1,3 +1,8 @@
+body {
+  background-color: #e8f1f8;
+  min-height: 100vh;
+}
+
 .game-container {
   max-width: 600px;
 }
