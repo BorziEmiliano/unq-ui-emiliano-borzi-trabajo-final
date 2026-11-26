@@ -18,11 +18,11 @@ const WordForm = ({
                 </div>
             )}
 
-            <div className="input-group">
+            <div className="input-group focus-ring focus-ring-primary">
                 <input
                     ref={inputRef}
                     type="text"
-                    className="form-control"
+                    className="form-control shadow-none"
                     value={word}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={

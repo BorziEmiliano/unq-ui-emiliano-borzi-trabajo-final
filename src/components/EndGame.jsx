@@ -32,22 +32,23 @@ const EndGame = ({ wordsCount, score, onSaveScore, onReset }) => {
                 Puntaje final: <strong>{score}</strong>
             </p>
 
-            <form onSubmit={handleSubmit} className="mb-3">
-                <div className="input-group input-group-sm">
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Tu nombre"
-                        value={playerName}
-                        onChange={handleNameChange}
-                        disabled={isSaved}
-                        maxLength={20}
-                    />
-                    <button type="submit" className="btn btn-success" disabled={isSaved || !trimmedName}>
-                        {isSaved ? "Guardado" : "Guardar"}
-                    </button>
-                </div>
-            </form>
+            {!isSaved && (
+                <form onSubmit={handleSubmit} className="mb-3">
+                    <div className="input-group input-group-sm">
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Tu nombre"
+                            value={playerName}
+                            onChange={handleNameChange}
+                            maxLength={20}
+                        />
+                        <button type="submit" className="btn btn-success" disabled={!trimmedName}>
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            )}
 
             <div className="d-flex gap-2">
                 <button type="button" className="btn btn-dark btn-sm" onClick={onReset}>

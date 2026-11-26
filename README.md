@@ -18,3 +18,7 @@ Desarrollado con React, Vite, React Router, Axios y Bootstrap.
 
 - Ejecutar `npm run dev`
 - Ingresar a http://localhost:5173
+
+## Observaciones
+
+En WordChain.jsx pensé utilizar `removeAccents(usedWord.toLowerCase())` para que al poner tildes al azar (ej: árból) se las saque en la cadena (ya que a la Api le da igual las tildes y mayúsculas). Pero esto hace que palabras bien utilizadas, como "árbol", pierdan su tilde.
